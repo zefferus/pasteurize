@@ -2,7 +2,7 @@
 
 A **secure** password one-way hashing and verification module for Node.js.
 
-[![Build Status](https://secure.travis-ci.org/zefferus/pasturize.svg)](http://travis-ci.org/zefferus/pasteurize)![Current Version](https://img.shields.io/npm/v/pasteurize.svg)
+[![Build Status](https://travis-ci.org/zefferus/pasteurize.svg?branch=master)](https://travis-ci.org/zefferus/pasteurize)![Current Version](https://img.shields.io/npm/v/pasteurize.svg)
 
 **Pasteurize** helps you create and verify secure password hashes by wrapping the built-in functions of Node.js' [`Crypto` module](https://nodejs.org/dist/latest/docs/api/crypto.html) and making it easier to use. **Pasteurize** uses cryptographically strong pseudo-random data for hash salts and the highly-secure PBKDF2 hashing function to generate a secure one-way hash of your user's password so you do not have to worry about accidentally leaking the original password.
 
