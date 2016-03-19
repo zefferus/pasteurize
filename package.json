@@ -4,7 +4,7 @@
   "description": "A secure password hashing and verification module",
   "main": "src/pasteurize.js",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.12.0"
   },
   "scripts": {
     "lint": "node_modules/.bin/eslint src",
