@@ -18,7 +18,7 @@ $ npm install --save pasteurize
 
 ## Usage
 
-### new Pasteurize(keyLength, saltLength, iterations, digest)
+### `new Pasteurize(keyLength, saltLength, iterations, digest)`
 
 Creates a new `Pasteurize` object where:
 
