@@ -2,10 +2,9 @@
 
 /* eslint func-names: 0, max-len: 0, no-unused-vars: 0 */
 
-var tap = require('tap');
-var test = tap.test;
+import test from 'ava';
 
-var Pasteurize = require('../src/pasteurize.js');
+import { Pasteurize } from '../src/pasteurize.js';
 
 var internals = {
   hashes: {
@@ -19,207 +18,166 @@ var internals = {
   }
 };
 
-test('Errors if not instantiated new', function (t) {
+test('Errors if keylength bad', (t) => {
+  t.plan(2);
+
+  t.throws(() => { var pasteurize = new Pasteurize(null, 256, 100, 'sha512'); }, TypeError);
+  t.throws(() => { var pasteurize = new Pasteurize(-1, 256, 100, 'sha512'); }, TypeError);
+});
+
+test('Errors if saltLength bad', (t) => {
+  t.plan(2);
+
+  t.throws(() => { var pasteurize = new Pasteurize(64, null, 100, 'sha512'); }, TypeError);
+  t.throws(() => { var pasteurize = new Pasteurize(64, -1, 100, 'sha512'); }, TypeError);
+});
+
+test('Errors if iterations bad', (t) => {
+  t.plan(2);
+
+  t.throws(() => { var pasteurize = new Pasteurize(64, 256, null, 'sha512'); }, TypeError);
+  t.throws(() => { var pasteurize = new Pasteurize(64, 256, -1, 'sha512'); }, TypeError);
+});
+
+test('Errors if digest bad', (t) => {
+  t.plan(2);
+
+  t.throws(() => { var pasteurize = new Pasteurize(64, 256, 100, null); }, TypeError);
+  t.throws(() => { var pasteurize = new Pasteurize(64, 256, 100, 'obviously bad digest'); }, TypeError);
+});
+
+test.cb('Async verify good password', (t) => {
+  t.plan(2);
+  var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
+
+  pasteurize.verifyPassword('password1', internals.hashes.password1, (err: Error, verified: boolean) => {
+    t.ifError(err);
+    t.truthy(verified);
+    t.end();
+  });
+});
+
+test('Async verify returns promise', (t) => {
   t.plan(1);
+  var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
-  t.throws(function () {
-    var pasteurize = Pasteurize(64, 256, 100, 'sha512');
+  return pasteurize.verifyPassword('password1', internals.hashes.password1)
+  .then((verified) => {
+    t.truthy(verified);
   });
-  t.end();
 });
 
-test('Errors if keyLength bad', function(t) {
-  t.plan(4);
-
-  t.throws(function () {
-    var pasteurize = new Pasteurize();
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(-1);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(null);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize('x');
-  }, TypeError);
-
-  t.end();
-});
-
-test('Errors if saltLength bad', function(t) {
-  t.plan(4);
-
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, -1);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, null);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 'x');
-  }, TypeError);
-
-  t.end();
-});
-
-test('Errors if iterations bad', function(t) {
-  t.plan(4);
-
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, -1);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, null);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, 'x');
-  }, TypeError);
-
-  t.end();
-});
-
-test('Errors if digest bad', function(t) {
-  t.plan(4);
-
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, 100);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, 100, 512);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, 100, null);
-  }, TypeError);
-  t.throws(function () {
-    var pasteurize = new Pasteurize(64, 256, 100, 'obviously bad digest');
-  }, TypeError);
-
-  t.end();
-});
-
-test('Async verify good password', function (t) {
+test.cb('Async verify bad password', (t) => {
   t.plan(2);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
-  pasteurize.verifyPassword('password1', internals.hashes.password1, function (err, verified) {
+  pasteurize.verifyPassword('password1', internals.hashes.password2, (err: Error, verified: boolean) => {
     t.ifError(err);
-    t.ok(verified);
+    t.falsy(verified);
     t.end();
   });
 });
 
-test('Async verify bad password', function (t)  {
-  t.plan(2);
-  var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
-
-  pasteurize.verifyPassword('password1', internals.hashes.password2, function (err, verified) {
-    t.ifError(err);
-    t.notOk(verified);
-    t.end();
-  });
-});
-
-test('Sync verify good password', function (t)  {
+test('Sync verify good password', (t) => {
   t.plan(1);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   var verified = pasteurize.verifyPasswordSync('password2', internals.hashes.password2);
-  t.ok(verified);
+  t.truthy(verified);
 });
 
-test('Sync verify bad password', function (t)  {
+test('Sync verify bad password', (t) => {
   t.plan(1);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   var verified = pasteurize.verifyPasswordSync('password2', internals.hashes.corrupted.password2);
-  t.notOk(verified);
+  t.falsy(verified);
 });
 
-test('Async hash password', function (t)  {
+test.cb('Async hash password', (t) => {
   t.plan(4);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
-  pasteurize.hashPassword('password1', function (err, hash) {
+  pasteurize.hashPassword('password1', (err: Error, hash: string) => {
     t.ifError(err);
-    t.ok(hash);
+    t.truthy(hash);
 
-    pasteurize.verifyPassword('password1', hash, function (err, verified) {
+    pasteurize.verifyPassword('password1', hash, (err: Error, verified: boolean) => {
       t.ifError(err);
-      t.ok(verified);
+      t.truthy(verified);
       t.end();
     });
   });
 });
 
-test('Sync hash password', function (t)  {
+test('Async hash password returns promise', (t) => {
+  t.plan(1);
+  var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
+
+  return pasteurize.hashPassword('password1')
+  .then((hash) => pasteurize.verifyPassword('password1', hash))
+  .then((verified) => {
+    t.truthy(verified);
+  });
+});
+
+test('Sync hash password', (t) => {
   t.plan(2);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   var hash = pasteurize.hashPasswordSync('password1');
-  t.ok(hash);
+  t.truthy(hash);
 
   var verified = pasteurize.verifyPasswordSync('password1', hash);
-  t.ok(verified);
-  t.end();
+  t.truthy(verified);
 });
 
-test('Bad hash in async verification', function (t)  {
+test.cb('Bad hash in async verification', (t) => {
   t.plan(2);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
-  pasteurize.verifyPassword('password1', 'abc', function (err, verified) {
+  pasteurize.verifyPassword('password1', 'abc', (err: Error, verified: boolean) => {
     t.ifError(err);
-    t.notOk(verified);
+    t.falsy(verified);
     t.end();
   });
 });
 
-test('Bad hash in sync verification', function (t)  {
+test('Bad hash in sync verification', (t) => {
   t.plan(1);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   var verified = pasteurize.verifyPasswordSync('password1', 'abc');
-  t.notOk(verified);
-  t.end();
+  t.falsy(verified);
 });
 
-test('Corrupted hash in async verification', function (t)  {
+test.cb('Corrupted hash in async verification', (t) => {
   t.plan(2);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   pasteurize.verifyPassword('password1', internals.hashes.corrupted.password1,
-    function (err, verified) {
-      t.ok(err);
-      t.notOk(verified);
+    (err: Error, verified: boolean) => {
+      t.truthy(err);
+      t.falsy(verified);
       t.end();
     });
 });
 
-test('Corrupted hash in sync verification', function (t)  {
+test('Corrupted hash in sync verification', (t) => {
   t.plan(1);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
-  t.throws(function () {
-    return pasteurize.verifyPasswordSync('password1', internals.hashes.corrupted.password1);
-  });
-  t.end();
+  t.throws(() => pasteurize.verifyPasswordSync('password1', internals.hashes.corrupted.password1));
 });
 
-test('Hash with bad digest in verification', function (t)  {
+test.cb('Hash with bad digest in verification', (t) => {
   t.plan(2);
   var pasteurize = new Pasteurize(64, 256, 100, 'sha512');
 
   pasteurize.verifyPassword('password2', internals.hashes.corrupted.baddigest,
-    function (err, verified) {
-      t.ok(err);
-      t.notOk(verified);
+    (err: Error, verified: boolean) => {
+      t.truthy(err);
+      t.falsy(verified);
       t.end();
     });
 });

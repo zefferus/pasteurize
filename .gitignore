@@ -7,6 +7,8 @@ artifacts/
 docs/
 .nyc_output/
 logs/
+.vscode/
+dist/
 
 *.log
 *.tap
