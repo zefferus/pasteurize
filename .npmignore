@@ -1,2 +1,7 @@
-circle.yml
+.travis.yml
 test/
+src/
+tsconfig.json
+tsconfig.build.json
+coverage/
+artifacts/

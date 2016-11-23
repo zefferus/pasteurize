@@ -2,7 +2,7 @@
 
 A **secure** password one-way hashing and verification module for Node.js.
 
-[![Build Status](https://travis-ci.org/zefferus/pasteurize.svg?branch=master)](https://travis-ci.org/zefferus/pasteurize)![Current Version](https://img.shields.io/npm/v/pasteurize.svg)
+[![Build Status](https://travis-ci.org/zefferus/pasteurize.svg?branch=master)](https://travis-ci.org/zefferus/pasteurize) [![Coverage Status](https://coveralls.io/repos/github/zefferus/pasteurize/badge.svg?branch=master)](https://coveralls.io/github/zefferus/pasteurize?branch=master) ![Current Version](https://img.shields.io/npm/v/pasteurize.svg)
 
 Development on **Pasteurize** is sponsored by [Sparo Labs](http://www.sparolabs.com/).
 
@@ -41,19 +41,21 @@ Rather than failing later when processing passwords, `Pasteurize` will throw an 
 ***Security Note:*** Please research the latest security recommendations when establishing your password hashing strategy. New strategies or recommendations may have been published since this document was written that can better help guide your decisions.
 
 ```javascript
-const Pasteurize = require('pasteurize');
+const Pasteurize = require('pasteurize').Pasteurize;
 const pasteurize = new Pasteurize(64, 256, 100000, 'sha512');
 ```
 
 
-### `pasteurize.hashPassword(password, callback)`
+### `pasteurize.hashPassword(password, [callback])`
 
 Asyncronously generates a password hash based on the initiating values of `Pasteurize` where:
 
 - `password` - The password string to hash.
-- `callback` - The callback method when password hashing is complete or failed with signature `function (err, hashedPassword)` where:
+- `callback` - The optional callback method when password hashing is complete or failed with signature `function (err, [hashedPassword])` where:
     - `err` - Any error condition while creating the password hash.
     - `hashedPassword` - The resulting password hash.
+
+If `callback` is not provided, this method returns a `Promise`.
 
 ```javascript
 pasteurize.hashPassword('password1', (err, hash) => {
@@ -78,15 +80,17 @@ pasteurize.hashPasswordSync('password2');
 // `$pbkdf2-sha512$100000$afkU.1uOIs8BuUAFwUE.Fxy9ngEEFLuLE0IN9Pib3lYFEF8TXbgNmUXaaa2DoBYv26BPb6ohObmhiTDAJYiWun5S7ab1jogoN7vvbci1ej.4gw2Dk6746urqx/0Qah5Qafq/t9TRRgMDo7evyuf7pgCIy0I37Q6kX/W9aFWCqW3BP3Z6l.ukuUqBT8YA8eYyUw0Q0DfSBffZ/e2LpeP6xb8IfE2kAHoQHrvmkKNgG3hcH8RS8IXWiQDMaJHIica9zjTWXqEPdagoCj9x/oxkf58jFCYTidmLrwHDSLHPLDWVzcSi05Bu0SWym8Z.T6Wc5ba4hJejhd3JUdgBT./24w$RdmY5JLozECwEeY15/CpbpG6UFQUcULKOB8E.XId6PjP2uv3pDE1kL4Dhyna2xymGKqENOEXHha82TI91AEgIQ`
 ```
 
-### `pasteurize.verifyPassword(password, hashedPassword, callback)`
+### `pasteurize.verifyPassword(password, hashedPassword, [callback])`
 
 Asynchronously verifies a password against a given hash where:
 
 - `password` - The password string to verify.
 - `hashedPassword` - The hashed password against which to verify the password.
-- `callback` - The callback method when password verification is complete or failed with signature `function(err, verified)` where:
+- `callback` - The optional callback method when password verification is complete or failed with signature `function(err, [verified])` where:
     - `err` - Any error condition while verifying the password hash.
     - `verified` - Whether the password and the hash match.
+
+If `callback` is not provided, this method returns a `Promise`.
 
 ```javascript
 pasteurize.hashPassword('password1', (err, hash) => {
